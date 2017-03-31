@@ -1,19 +1,11 @@
 
-"""setup client
-establish socket to server
-
-loop for input on command line
-    iWant filename
-        send request to server
-        look for response of file (or error msg)
-
-    uTake filename
-        send request to server
-        client checks if file exists
-        send file when server is ready"""
+"""
+Lab2 Client file written by Tim Anderson and Dan McGarry
+"""
 
 from socket import *
-import os.path 
+from shutil import copyfile
+import os
 
 serverName = '127.0.0.1' 
 serverPort = 12000
@@ -25,16 +17,19 @@ while 1:
 		modifiedMessage, serverAddress = clientSocket.recvfrom(2048)
 		if (not modifiedMessage): 
 			print "receiving file"
-			location =  raw_input('Input directory or enter>')
 			path = "./received/"
-			if (location != ""):
-				path = location + "/"
 			path = path + message[6:] 
 			with open(path, "w+") as f:
 				modifiedMessage = " "
 				while modifiedMessage:
 					modifiedMessage, serverAddress = clientSocket.recvfrom(2048)
 					f.write(modifiedMessage)
+				print "next"
+			location =  raw_input('Input directory or enter>')
+			if (location != ""): 
+				copyfile(path, location+"/"+message[6:])
+				os.remove(path)
+
 		else: 
 			print modifiedMessage
 
