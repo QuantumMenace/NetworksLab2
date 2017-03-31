@@ -18,5 +18,12 @@ print "The server is ready to receive"
 
 while 1:
     message, clientAddress = serverSocket.recvfrom(2048)
+    if (message.startsWith("iWant "):
+        filename = message[6:]
+        check that command is correct format (send error if no)
+        check if file exists (send error if no)
+        send file
+
+
     modifiedMessage = message.upper()
     serverSocket.sendto(modifiedMessage, clientAddress)
