@@ -18,7 +18,7 @@ def processRequest(message):
 		return statusLine
 	else:
 		"if connection is in headers, we want it to be close, else we add it"
-		request.headers["Connection"] = "close"
+		request.headers["connection"] = "close"
 		host, port, path = processURL(request.path)
 
 		if request.command == "GET": 
