@@ -18,30 +18,31 @@ def processRequest(message):
 		return statusLine
 	else:
 		"if connection is in headers, we want it to be close, else we add it"
-		request.headers["connection"] = "close"
-		host, port, path = processURL(request.path)
+		try:
+			request.headers["connection"] = "close"
+			host, port, path = processURL(request.path)
 
-		if request.command == "GET" or request.command == "HEAD" or request.command == "POST":
-			"Stuff"
-			serverRequest = buildRequest(request, host, port, path)
-			print serverRequest
-			serverSocket = socket(AF_INET, SOCK_STREAM)
-			serverSocket.settimeout(15.00)
-			serverSocket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
-			serverSocket.connect((host, int(port)))
-			serverSocket.send(serverRequest)
-			"""serverSocket.sendto(serverRequest, (host, int(port)))"""
-			print "Waiting to receive data"
-			data = [serverSocket.recv(4096)]
-			while data[-1]:
-				data.append(serverSocket.recv(4096))
-			data = ''.join(data)
-			print "Received data"
-			serverSocket.shutdown(1)
-			serverSocket.close()
-			return data
-		else: 
-			return notImplemented
+			if request.command == "GET" or request.command == "HEAD": 
+				"Stuff"
+				serverRequest = buildRequest(request, host, port, path)
+				serverSocket = socket(AF_INET, SOCK_STREAM)
+				serverSocket.settimeout(15.00)
+				serverSocket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
+				serverSocket.connect((host, int(port)))
+				serverSocket.send(serverRequest)
+				"""serverSocket.sendto(serverRequest, (host, int(port)))"""
+				data = [serverSocket.recv(4096)]
+				while data[-1]:
+					data.append(serverSocket.recv(4096))
+				data = ''.join(data)
+				serverSocket.shutdown(SHUT_RDWR)
+				serverSocket.close()
+				return data
+			else: 
+				return notImplemented
+		except: 
+			return bad		
+
 
 
 def buildRequest(request, host, port, path): 
@@ -49,13 +50,9 @@ def buildRequest(request, host, port, path):
 	requestParts.append(request.command + " " + path + " HTTP/1.0")
 	requestParts.append("Host: " + host + ":" + port)
 	for header in request.headers: 
-		print header, request.headers[header]
 		requestParts.append(header + ": " + request.headers[header])
 
 	requestParts.append("\r\n")
-
-	body_length = int(request.headers.getheader('content-length', 0))
-	requestParts.append(request.rfile.read(body_length))
 	return "\r\n".join(requestParts)
 
 
@@ -107,25 +104,19 @@ port = int(sys.argv[1])
 proxySocket = socket(AF_INET, SOCK_STREAM)
 proxySocket.bind(('', port))
 proxySocket.listen(100)
-print "Proxy ready to handle requests on port " + str(port)
 
 while 1: 
-	print "waiting for a connection"
 	connection, clientAddress = proxySocket.accept()
-	if(childBearingLimit):
-		childBearingLimit = childBearingLimit -1
-		parent = os.fork()
-		if not parent: 
-			"do childish things here"
-			message = connection.recv(1000000)
-			data = processRequest(message)
-			connection.sendto(data, clientAddress)
-			connection.shutdown(1)
-			connection.close()
-			childBearingLimit = childBearingLimit +1
-			os._exit(0)
-
-		else: 
-			"nothing really, adults don't do anything"
+	parent = os.fork()
+	if not parent: 
+		"do childish things here"
+		message = connection.recv(1000000)
+		data = processRequest(message)
+		connection.sendto(data, clientAddress)
+		connection.shutdown(SHUT_RDWR)
+		connection.close()
+		break
+	else: 
+		"nothing really, adults don't do anything"
 
 
