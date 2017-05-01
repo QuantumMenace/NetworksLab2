@@ -21,7 +21,7 @@ def processRequest(message):
 		request.headers["connection"] = "close"
 		host, port, path = processURL(request.path)
 
-		if request.command == "GET": 
+		if request.command == "GET" or request.command == "HEAD": 
 			"Stuff"
 			serverRequest = buildRequest(request, host, port, path)
 			print serverRequest
