@@ -21,7 +21,7 @@ def processRequest(message):
 		request.headers["connection"] = "close"
 		host, port, path = processURL(request.path)
 
-		if request.command == "GET" or request.command == "HEAD": 
+		if request.command == "GET" or request.command == "HEAD" or request.command == "POST":
 			"Stuff"
 			serverRequest = buildRequest(request, host, port, path)
 			print serverRequest
@@ -53,6 +53,9 @@ def buildRequest(request, host, port, path):
 		requestParts.append(header + ": " + request.headers[header])
 
 	requestParts.append("\r\n")
+
+	body_length = int(request.headers.getheader('content-length', 0))
+	requestParts.append(request.rfile.read(body_length))
 	return "\r\n".join(requestParts)
 
 
