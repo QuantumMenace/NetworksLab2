@@ -37,7 +37,6 @@ def processRequest(message):
 				data.append(serverSocket.recv(4096))
 			data = ''.join(data)
 			print "Received data"
-			print data
 			serverSocket.shutdown(1)
 			serverSocket.close()
 			return data
@@ -117,7 +116,9 @@ while 1:
 		if not parent: 
 			"do childish things here"
 			data = processRequest(message)
-			proxySocket.sendto(data, clientAddress)
+			connection.sendto(data, clientAddress)
+			connection.shutdown(1)
+			connection.close()
 			childBearingLimit = childBearingLimit +1
 			os._exit(0)
 
