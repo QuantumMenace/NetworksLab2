@@ -22,7 +22,7 @@ def processRequest(message):
 			request.headers["connection"] = "close"
 			host, port, path = processURL(request.path)
 
-			if request.command == "GET" or request.command == "HEAD" or request.command = "POST": 
+			if request.command == "GET" or request.command == "HEAD" or request.command == "POST": 
 				"Stuff"
 				serverRequest = buildRequest(request, host, port, path)
 				serverSocket = socket(AF_INET, SOCK_STREAM)
@@ -55,7 +55,8 @@ def buildRequest(request, host, port, path):
 	requestParts.append("\r\n")
 
 	body_length = int(request.headers.getheader('content-length', 0))
-	requestParts.append(request.rfile.read(body_length))
+	if body_length:
+		requestParts.append(request.rfile.read(body_length))
 
 	return "\r\n".join(requestParts)
 
@@ -115,7 +116,10 @@ while 1:
 		message = connection.recv(1000000)
 		data = processRequest(message)
 		connection.sendto(data, clientAddress)
-		connection.shutdown(SHUT_RDWR)
+		try: 
+			connection.shutdown(SHUT_RDWR)
+		except: 
+			"Do nothing I guess"
 		connection.close()
 		break
 	else: 
