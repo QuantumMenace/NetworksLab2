@@ -112,12 +112,12 @@ print "Proxy ready to handle requests on port " + str(port)
 while 1: 
 	print "waiting for a connection"
 	connection, clientAddress = proxySocket.accept()
-	message = connection.recv(1000000)
 	if(childBearingLimit):
 		childBearingLimit = childBearingLimit -1
 		parent = os.fork()
 		if not parent: 
 			"do childish things here"
+			message = connection.recv(1000000)
 			data = processRequest(message)
 			connection.sendto(data, clientAddress)
 			connection.shutdown(1)
