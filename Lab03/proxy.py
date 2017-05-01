@@ -22,7 +22,7 @@ def processRequest(message):
 			request.headers["connection"] = "close"
 			host, port, path = processURL(request.path)
 
-			if request.command == "GET" or request.command == "HEAD": 
+			if request.command == "GET" or request.command == "HEAD" or request.command = "POST": 
 				"Stuff"
 				serverRequest = buildRequest(request, host, port, path)
 				serverSocket = socket(AF_INET, SOCK_STREAM)
@@ -53,6 +53,10 @@ def buildRequest(request, host, port, path):
 		requestParts.append(header + ": " + request.headers[header])
 
 	requestParts.append("\r\n")
+
+	body_length = int(request.headers.getheader('content-length', 0))
+	requestParts.append(request.rfile.read(body_length))
+
 	return "\r\n".join(requestParts)
 
 
@@ -92,8 +96,6 @@ class HTTPRequest(BaseHTTPRequestHandler):
 
 notImplemented = "Not Implemented, (501)"
 bad = "Bad Request, (400)"
-
-childBearingLimit = 100
 
 if (len(sys.argv) != 2):
 	print "Incorrect number of arguments."
