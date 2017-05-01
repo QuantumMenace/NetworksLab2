@@ -25,10 +25,20 @@ def processRequest(message):
 			"Stuff"
 			serverRequest = buildRequest(request, host, port, path)
 			print serverRequest
-			serverSocket = socket(AF_INET, SOCK_DGRAM)
-			serverSocket.sendto(serverRequest, (host, int(port)))
-			data = serverSocket.recv(1000000)
+			serverSocket = socket(AF_INET, SOCK_STREAM)
+			serverSocket.settimeout(15.00)
+			serverSocket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
+			serverSocket.connect((host, int(port)))
+			serverSocket.send(serverRequest)
+			"""serverSocket.sendto(serverRequest, (host, int(port)))"""
+			print "Waiting to receive data"
+			data = [serverSocket.recv(4096)]
+			while data[-1]:
+				data.append(serverSocket.recv(4096))
+			data = ''.join(data)
+			print "Received data"
 			print data
+			serverSocket.shutdown(1)
 			serverSocket.close()
 			return data
 		else: 
