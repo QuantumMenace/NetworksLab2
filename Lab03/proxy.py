@@ -51,14 +51,22 @@ def processURL(requestPath):
 	if requestPath.lower().startswith("http://"):
 		requestPath = requestPath[7:]
 	parts = requestPath.split(":")
-	if len(parts) >1: 
+	if len(parts) > 1: 
 		host = parts[0]
-		port, path = parts[1].split("/", 1)
+		if "/" in parts[1]:
+			port, path = parts[1].split("/", 1)
+		else:
+			port = parts[1]
+			path = ""
 	else: 
-		host, path = parts[0].split("/", 1)
-		port = "80"
-	path = "/"+path
-
+		if "/" in parts[0]:
+			host, path = parts[0].split("/", 1)
+			port = "80"
+		else:
+			host = parts[0]
+			port = "80"
+			path = ""
+	path = "/" + path
 	return (host, port, path)
 	
 class HTTPRequest(BaseHTTPRequestHandler):
